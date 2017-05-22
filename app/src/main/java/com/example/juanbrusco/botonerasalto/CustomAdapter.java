@@ -1,7 +1,10 @@
 package com.example.juanbrusco.botonerasalto;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,12 +55,19 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
             case R.id.item_play:
                 String fileName = dataModel.getFile().toString().toLowerCase();
                 int resID = mContext.getResources().getIdentifier(fileName, "raw", mContext.getPackageName());
-                MediaPlayer mediaPlayer = MediaPlayer.create(mContext,resID);
+                MediaPlayer mediaPlayer = MediaPlayer.create(mContext, resID);
                 mediaPlayer.start();
                 break;
             case R.id.item_share:
-                Snackbar.make(v, "Release date " + dataModel.getFile(), Snackbar.LENGTH_LONG)
-                        .setAction("No action", null).show();
+//                String sharePath = Environment.getExternalStorageDirectory().getPath()
+//                        + "/Soundboard/Ringtones/custom_ringtone.ogg";
+                Uri uri = Uri.parse(
+                        "android.resource://" + mContext.getPackageName() + "/raw/" + dataModel.getFile().toString().toLowerCase()
+                );
+                Intent share = new Intent(Intent.ACTION_SEND);
+                share.setType("audio/*");
+                share.putExtra(Intent.EXTRA_STREAM, uri);
+                mContext.startActivity(Intent.createChooser(share, "Share Sound File"));
                 break;
         }
     }
