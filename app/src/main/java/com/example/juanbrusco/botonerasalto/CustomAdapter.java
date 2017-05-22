@@ -1,6 +1,7 @@
 package com.example.juanbrusco.botonerasalto;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import static com.example.juanbrusco.botonerasalto.R.id.parent;
 
 /**
  * Created by juan.brusco on 22-May-17.
@@ -47,8 +50,10 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
 
         switch (v.getId()) {
             case R.id.item_play:
-                Snackbar.make(v, "Release date " + dataModel.getFile(), Snackbar.LENGTH_LONG)
-                        .setAction("No action", null).show();
+                String fileName = dataModel.getFile().toString().toLowerCase();
+                int resID = mContext.getResources().getIdentifier(fileName, "raw", mContext.getPackageName());
+                MediaPlayer mediaPlayer = MediaPlayer.create(mContext,resID);
+                mediaPlayer.start();
                 break;
             case R.id.item_share:
                 Snackbar.make(v, "Release date " + dataModel.getFile(), Snackbar.LENGTH_LONG)

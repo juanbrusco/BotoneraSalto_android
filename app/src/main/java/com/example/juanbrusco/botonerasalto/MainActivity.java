@@ -39,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
         dataModels= new ArrayList<>();
 
-        dataModels.add(new DataModel("Batata", "Mica...", "audio_mica"));
-        dataModels.add(new DataModel("Batata", "Ah boa...", "audio_boa"));
+        dataModels.add(new DataModel("Batata", "Mica...", "batata_boa.opus"));
+        dataModels.add(new DataModel("Batata", "Ah boa...", "batata_boa.ogg"));
 
         adapter= new CustomAdapter(dataModels,getApplicationContext());
 
