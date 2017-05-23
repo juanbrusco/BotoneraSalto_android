@@ -2,6 +2,8 @@ package com.example.juanbrusco.botonerasalto;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
@@ -15,6 +17,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import static com.example.juanbrusco.botonerasalto.R.id.parent;
@@ -27,6 +31,8 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
 
     private ArrayList<DataModel> dataSet;
     Context mContext;
+    MediaPlayer mediaPlayer = null;
+    ImageView iw;
 
     // View lookup cache
     private static class ViewHolder {
@@ -34,6 +40,7 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
         TextView txtDescription;
         TextView txtFIle;
         ImageView play;
+        ImageView stop;
         ImageView share;
     }
 
@@ -46,7 +53,6 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
 
     @Override
     public void onClick(View v) {
-
         int position = (Integer) v.getTag();
         Object object = getItem(position);
         DataModel dataModel = (DataModel) object;
@@ -54,20 +60,34 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
         switch (v.getId()) {
             case R.id.item_play:
                 String fileName = dataModel.getFile().toString().toLowerCase();
-                int resID = mContext.getResources().getIdentifier(fileName, "raw", mContext.getPackageName());
-                MediaPlayer mediaPlayer = MediaPlayer.create(mContext, resID);
-                mediaPlayer.start();
+//                int resID = mContext.getResources().getIdentifier(fileName, "raw", mContext.getPackageName());
+//                if (mediaPlayer == null) {
+//                    mediaPlayer = MediaPlayer.create(mContext, R.raw.batata_boa2);
+//                    mediaPlayer.start();
+//                }
+
+                MediaPlayer p = new MediaPlayer();
+                try {
+                    AssetFileDescriptor afd = mContext.getAssets().openFd("batata_boa2.opus");
+                    p.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    afd.close();
+                    p.prepare();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                p.start();
+                break;
+            case R.id.item_stop:
+                if (mediaPlayer != null) {
+                    mediaPlayer.stop();
+                    mediaPlayer = null;
+                }
                 break;
             case R.id.item_share:
-//                String sharePath = Environment.getExternalStorageDirectory().getPath()
-//                        + "/Soundboard/Ringtones/custom_ringtone.ogg";
-                Uri uri = Uri.parse(
-                        "android.resource://" + mContext.getPackageName() + "/raw/" + dataModel.getFile().toString().toLowerCase()
-                );
-                Intent share = new Intent(Intent.ACTION_SEND);
-                share.setType("audio/*");
-                share.putExtra(Intent.EXTRA_STREAM, uri);
-                mContext.startActivity(Intent.createChooser(share, "Share Sound File"));
+                final Intent sendIntent  = new Intent(Intent.ACTION_SEND);
+                sendIntent.setType("audio/*");
+                sendIntent.putExtra(Intent.EXTRA_STREAM, R.raw.batata_boa2);
+                mContext.startActivity(Intent.createChooser(sendIntent, ""));
                 break;
         }
     }
@@ -92,6 +112,7 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
             viewHolder.txtDescription = (TextView) convertView.findViewById(R.id.description);
             viewHolder.txtFIle = (TextView) convertView.findViewById(R.id.file);
             viewHolder.play = (ImageView) convertView.findViewById(R.id.item_play);
+            viewHolder.stop = (ImageView) convertView.findViewById(R.id.item_stop);
             viewHolder.share = (ImageView) convertView.findViewById(R.id.item_share);
 
 
@@ -112,6 +133,8 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
         viewHolder.txtFIle.setText(dataModel.getFile());
         viewHolder.play.setOnClickListener(this);
         viewHolder.play.setTag(position);
+        viewHolder.stop.setOnClickListener(this);
+        viewHolder.stop.setTag(position);
         viewHolder.share.setOnClickListener(this);
         viewHolder.share.setTag(position);
         // Return the completed view to render on screen
